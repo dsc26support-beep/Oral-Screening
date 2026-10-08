@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Oral Health Screening</title>
+<meta name="description" content="Offline-capable oral health screening form: DMFT/dmft, PUFA/pufa, CPITN and oral cancer screening." />
+<meta name="theme-color" content="#0f6e5e" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="assets/icons/icon-192.png" />
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="app-bar">
+  <button id="btn-back" class="icon-btn" hidden aria-label="Back">&#8592;</button>
+  <h1 id="app-bar-title">Oral Health Screening</h1>
+  <button id="btn-settings" class="icon-btn" aria-label="Settings">&#9881;</button>
+</header>
+
+<div id="status-bar" class="status-bar">
+  <span id="status-dot" class="status-dot"></span>
+  <span id="status-text">Checking status...</span>
+  <button id="btn-sync-now" class="link-btn">Sync now</button>
+</div>
+
+<main id="app">
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <button id="btn-new-screening" class="primary-btn btn-block">+ New Screening</button>
+    <h2 class="section-heading">Recent screenings</h2>
+    <div id="home-list" class="list"></div>
+    <p id="home-empty" class="empty-note" hidden>No screenings recorded yet on this device.</p>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="screen-settings" class="screen" hidden>
+    <p class="hint">Set this up once per device. The access code is stored only in this browser - it is never committed to the GitHub repo.</p>
+    <label class="field">
+      <span>Apps Script Web App URL</span>
+      <input type="url" id="input-apps-script-url" placeholder="https://script.google.com/macros/s/.../exec" />
+    </label>
+    <label class="field">
+      <span>Clinic access code</span>
+      <input type="text" id="input-access-code" placeholder="Shared code set in Apps Script properties" />
+    </label>
+    <label class="field">
+      <span>Default examiner name</span>
+      <input type="text" id="input-default-examiner" placeholder="e.g. Dr. Rao" />
+    </label>
+    <label class="field">
+      <span>Default camp / location</span>
+      <input type="text" id="input-default-location" placeholder="e.g. Greenfield School Camp" />
+    </label>
+    <div class="btn-row">
+      <button id="btn-test-connection" class="secondary-btn">Test connection</button>
+      <button id="btn-save-settings" class="primary-btn">Save</button>
+    </div>
+    <p id="settings-test-result" class="hint"></p>
+  </section>
+
+  <!-- PATIENT INFO -->
+  <section id="screen-patient" class="screen" hidden>
+    <div class="step-indicator">Step 1 of 6 - Patient info</div>
+    <label class="field">
+      <span>Patient name or ID *</span>
+      <input type="text" id="input-patient-id" />
+    </label>
+    <label class="field">
+      <span>Age (years) *</span>
+      <input type="number" id="input-patient-age" min="0" max="120" />
+    </label>
+    <label class="field">
+      <span>Gender</span>
+      <select id="input-patient-gender">
+        <option value="">Not specified</option>
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <fieldset class="field">
+      <legend>Dentition being charted *</legend>
+      <label class="radio-label"><input type="radio" name="dentition" value="child" /> Primary (child) teeth</label>
+      <label class="radio-label"><input type="radio" name="dentition" value="adult" /> Permanent (adult) teeth</label>
+      <p class="hint">Mixed dentition (roughly ages 6-12): pick whichever set you are charting for this visit.</p>
+    </fieldset>
+    <label class="field">
+      <span>Examiner *</span>
+      <input type="text" id="input-examiner" />
+    </label>
+    <label class="field">
+      <span>Camp / location *</span>
+      <input type="text" id="input-location" />
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" id="input-consent" />
+      <span>Verbal consent obtained for screening</span>
+    </label>
+    <div class="btn-row">
+      <button class="primary-btn btn-block" data-next="dmft">Next: Tooth chart</button>
+    </div>
+  </section>
+
+  <!-- DMFT -->
+  <section id="screen-dmft" class="screen" hidden>
+    <div class="step-indicator">Step 2 of 6 - <span id="dmft-title">DMFT / dmft chart</span></div>
+    <p class="hint">Tap a tooth to set its status.</p>
+    <div id="dmft-chart" class="tooth-chart"></div>
+    <div id="dmft-summary" class="summary-line"></div>
+    <div class="btn-row">
+      <button class="secondary-btn" data-back>Back</button>
+      <button class="primary-btn" data-next="pufa">Next: PUFA</button>
+    </div>
+  </section>
+
+  <!-- PUFA -->
+  <section id="screen-pufa" class="screen" hidden>
+    <div class="step-indicator">Step 3 of 6 - <span id="pufa-title">PUFA / pufa</span></div>
+    <p class="hint">Scored only on teeth marked decayed in the previous step. Visual assessment, no probing.</p>
+    <div id="pufa-list" class="list"></div>
+    <p id="pufa-skip-note" class="empty-note" hidden>No decayed teeth recorded - PUFA/pufa assessment is not required for this patient.</p>
+    <div class="btn-row">
+      <button class="secondary-btn" data-back>Back</button>
+      <button class="primary-btn" data-next="cpitn">Next: CPITN</button>
+    </div>
+  </section>
+
+  <!-- CPITN -->
+  <section id="screen-cpitn" class="screen" hidden>
+    <div class="step-indicator">Step 4 of 6 - CPITN (periodontal)</div>
+    <p class="hint">Score each sextant 0-4, or X if fewer than 2 teeth present. Use the index teeth shown, or the worst score across all teeth in the sextant.</p>
+    <div id="cpitn-grid" class="cpitn-grid"></div>
+    <div id="cpitn-summary" class="summary-line"></div>
+    <div class="btn-row">
+      <button class="secondary-btn" data-back>Back</button>
+      <button class="primary-btn" data-next="cancer">Next: Cancer screening</button>
+    </div>
+  </section>
+
+  <!-- CANCER SCREENING -->
+  <section id="screen-cancer" class="screen" hidden>
+    <div class="step-indicator">Step 5 of 6 - Oral cancer screening</div>
+    <p class="hint">Screening only - not a diagnosis. Refer any suspicious finding for specialist evaluation.</p>
+    <div id="cancer-sites" class="list"></div>
+    <h3 class="section-heading">Risk factors</h3>
+    <div id="cancer-risk-factors" class="list"></div>
+    <div id="cancer-flag" class="flag-banner"></div>
+    <div class="btn-row">
+      <button class="secondary-btn" data-back>Back</button>
+      <button class="primary-btn" data-next="review">Next: Review</button>
+    </div>
+  </section>
+
+  <!-- REVIEW -->
+  <section id="screen-review" class="screen" hidden>
+    <div class="step-indicator">Step 6 of 6 - Review &amp; submit</div>
+    <div id="review-content"></div>
+    <label class="field">
+      <span>Additional notes</span>
+      <textarea id="input-overall-notes" rows="3"></textarea>
+    </label>
+    <div class="btn-row">
+      <button class="secondary-btn" data-back>Back</button>
+      <button id="btn-submit-screening" class="primary-btn">Submit &amp; save</button>
+    </div>
+  </section>
+
+  <!-- DETAIL (read-only view of a saved record) -->
+  <section id="screen-detail" class="screen" hidden>
+    <div id="detail-content"></div>
+  </section>
+
+</main>
+
+<div id="tooth-modal" class="modal-overlay" hidden>
+  <div class="modal-sheet">
+    <h3 id="tooth-modal-title">Tooth</h3>
+    <div id="tooth-modal-options" class="modal-options"></div>
+    <button id="tooth-modal-close" class="secondary-btn btn-block">Cancel</button>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/scoring.js"></script>
+<script src="js/db.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
