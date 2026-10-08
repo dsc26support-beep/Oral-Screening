@@ -20,7 +20,7 @@ var SHEET_NAME = 'Screenings';
 
 var COLUMNS = [
   'id', 'createdAt', 'receivedAt', 'examiner', 'campLocation',
-  'patientIdOrName', 'patientAge', 'patientGender', 'ageGroup', 'consent',
+  'patientIdOrName', 'patientAge', 'patientSex', 'ageGroup', 'consent',
   'dmft_D', 'dmft_M', 'dmft_F', 'dmft_total', 'dmft_teeth_json',
   'pufa_skipped', 'pufa_total', 'pufa_map_json',
   'cpitn_s1', 'cpitn_s2', 'cpitn_s3', 'cpitn_s4', 'cpitn_s5', 'cpitn_s6',
@@ -101,7 +101,7 @@ function appendRecord(sheet, r) {
     r.campLocation || '',
     (r.patient && r.patient.idOrName) || '',
     (r.patient && r.patient.age != null) ? r.patient.age : '',
-    (r.patient && r.patient.gender) || '',
+    (r.patient && r.patient.sex) || '',
     r.ageGroup || '',
     r.consent ? 'yes' : 'no',
     numOrBlank(dmftScores.D),

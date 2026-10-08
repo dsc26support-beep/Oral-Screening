@@ -125,7 +125,7 @@
       syncedAt: null,
       examiner: last.examiner || settings.defaultExaminer || '',
       campLocation: last.location || settings.defaultLocation || '',
-      patient: { idOrName: '', age: null, gender: '' },
+      patient: { idOrName: '', age: null, sex: '' },
       ageGroup: 'adult',
       consent: false,
       dmft: { teeth: {} },
@@ -136,7 +136,7 @@
     };
     qs('input-patient-id').value = '';
     qs('input-patient-age').value = '';
-    qs('input-patient-gender').value = '';
+    qs('input-patient-sex').value = '';
     document.querySelectorAll('input[name="dentition"]').forEach(function (r) { r.checked = false; });
     qs('input-examiner').value = wizard.examiner;
     qs('input-location').value = wizard.campLocation;
@@ -196,7 +196,7 @@
   function collectPatientStep() {
     wizard.patient.idOrName = qs('input-patient-id').value.trim();
     wizard.patient.age = parseInt(qs('input-patient-age').value, 10);
-    wizard.patient.gender = qs('input-patient-gender').value;
+    wizard.patient.sex = qs('input-patient-sex').value;
     wizard.ageGroup = document.querySelector('input[name="dentition"]:checked').value;
     wizard.examiner = qs('input-examiner').value.trim();
     wizard.campLocation = qs('input-location').value.trim();
@@ -427,7 +427,7 @@
     var html = '';
     html += '<div class="review-card"><h3>Patient</h3>' +
       '<p>' + escapeHtml(wizard.patient.idOrName) + ', age ' + wizard.patient.age +
-      (wizard.patient.gender ? ', ' + wizard.patient.gender : '') + '</p>' +
+      (wizard.patient.sex ? ', ' + wizard.patient.sex : '') + '</p>' +
       '<p>Examiner: ' + escapeHtml(wizard.examiner) + ' &middot; ' + escapeHtml(wizard.campLocation) + '</p></div>';
 
     html += '<div class="review-card"><h3>' + label + '</h3>' +
