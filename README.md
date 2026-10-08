@@ -119,6 +119,29 @@ apps-script/Code.gs                             Google Apps Script backend (past
 docs/CLINICAL-REFERENCE.md                      WHO criteria/codes used, with citations
 ```
 
+## Troubleshooting
+
+**"My Sheet has no columns / no 'Screenings' tab":** the tab and header row
+are created automatically the first time the backend is hit, not when you
+deploy. Two ways to create it right now, no device needed:
+- In the Apps Script editor, pick **testSetup** from the function dropdown
+  (next to the Run button) and click **Run**. Check the execution log, then
+  check your Sheet - a "Screenings" tab with headers should now exist.
+- Or just tap **Test connection** in the app's Settings screen - this also
+  creates it now.
+
+If either of those fails with an error mentioning `getActiveSpreadsheet`,
+the script isn't bound to your Sheet - it was likely created from
+[script.google.com](https://script.google.com) directly instead of via
+**Extensions > Apps Script** from inside the Sheet itself. Delete that
+script project and redo step 1 from inside the Sheet.
+
+If you already had a deployment running before this fix (`doGet` used to be
+a no-op), you don't need to redo anything to use `testSetup` - just paste
+the latest `Code.gs` into your existing project and run it from the editor.
+To also make future **Test connection** calls create the tab, redeploy:
+**Deploy > Manage deployments > edit (pencil) > Version: New version > Deploy**.
+
 ## Local development
 
 No build step - it's plain HTML/CSS/JS. Serve the folder with any static

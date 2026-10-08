@@ -31,7 +31,28 @@ var COLUMNS = [
 ];
 
 function doGet(e) {
-  return jsonResponse({ ok: true, status: 'Oral Screening API is running' });
+  try {
+    var sheet = getOrCreateSheet(); // also creates the header row on first call
+    return jsonResponse({ ok: true, status: 'Oral Screening API is running', sheet: sheet.getName() });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: 'exception', message: String(err) });
+  }
+}
+
+/**
+ * Manual diagnostic: open this file in the Apps Script editor, pick
+ * "testSetup" from the function dropdown next to Run, and click Run.
+ * Creates the "Screenings" tab + header row immediately (no deployment
+ * or device needed) and shows any setup error in the execution log -
+ * most commonly "getActiveSpreadsheet" failing, which means this script
+ * was created from script.google.com directly instead of via
+ * Extensions > Apps Script from inside the actual Sheet, so it isn't
+ * bound to it. Fix: delete this script project, reopen your Sheet, and
+ * use Extensions > Apps Script there instead.
+ */
+function testSetup() {
+  var sheet = getOrCreateSheet();
+  Logger.log('OK - sheet "' + sheet.getName() + '" ready, last row: ' + sheet.getLastRow());
 }
 
 function doPost(e) {
